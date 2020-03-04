@@ -8,8 +8,12 @@
 
   {{#if shortUrl}}
   <h2 class="mt-5 text-center">Success! Please use this link:</h2>
-  <div class="text-center">
-    <a href="{{shortUrl}}" class="text-center">{{shortUrl}}</a>
+  <div class="mt-3 text-center">
+    <a href="{{shortUrl}}" class="text-center" id="shortUrl">{{shortUrl}}</a>
+    <input type="hidden" id="copyUrl" value={{shortUrl}}>
+  </div>
+  <div class="mt-3 text-center">
+    <button class="btn btn-primary" id="copyBtn">Copy</button>
   </div>
   {{else}}
   <h2 style="color:brown;">{{error}}</h2>

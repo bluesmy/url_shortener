@@ -10,6 +10,8 @@ app.use(bodyParser.urlencoded({ extended: true }))
 app.engine('handlebars', exphbs({ defaultLayout: 'main' }))
 app.set('view engine', 'handlebars')
 
+app.use(express.static('public'))
+
 mongoose.connect('mongodb://localhost/url', { useNewUrlParser: true, useUnifiedTopology: true })
 
 const db = mongoose.connection
