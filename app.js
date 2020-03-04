@@ -16,10 +16,20 @@ db.once('open', () => {
 
 const Url = require('./models/url')
 
+//Url Shortener 首頁
 app.get('/', (req, res) => {
   res.send('hello world')
 })
 
+// 新增一筆 short url
+app.post('/shortUrl', (req, res) => {
+  res.send('新增short url')
+})
+
+// 導向 short url網址
+app.get('/:shortUrl_id', (req, res) => {
+  res.send('導向short url網址')
+})
 
 app.listen(3000, () => {
   console.log('App is running!')
