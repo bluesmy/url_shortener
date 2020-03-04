@@ -25,6 +25,10 @@ db.once('open', () => {
 const Url = require('./models/url')
 
 app.get('/', (req, res) => {
+  res.redirect('/shortUrl')
+})
+
+app.get('/shortUrl', (req, res) => {
   res.render('index')
 })
 
@@ -32,38 +36,65 @@ app.post('/shortUrl', (req, res) => {
   const originalUrl = req.body.originalUrl
   const host = req.headers.host
 
-  Url.findOne({ originalUrl: originalUrl }).then(url => {
+  // alert when no input or input format is wrong
+  const httpRegex = /^http:\/\//
+  const httpsRegex = /^https:\/\//
+  if (!originalUrl || (!originalUrl.match(httpRegex) && !originalUrl.match(httpsRegex))) {
+    res.render('index', {
+      originalUrl,
+      error: 'Please enter a valid url: http://... or https://...'
+    })
+  }
+
+  Url.findOne({ originalUrl: originalUrl }).then(async url => {
     if (url) {
       console.log('Url already shortened')
       const shortUrl = url.shortUrl
-      const completeShortUrl = `${host}/${shortUrl}`
+      const completeShortUrl = `http://${host}/${shortUrl}`
       res.render('index', { shortUrl: completeShortUrl })
     } else {
+      // avoid duplicate short url
+      let shortUrl = ''
       while (true) {
-        let shortUrl = ''
         shortUrl = generate('1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ', 5)
-        const duplicateUrl = Url.findOne({ shortUrl: shortUrl })
-        if (!duplicateUrl) break
+        const duplicateUrl = await Url.findOne({ shortUrl: shortUrl })
+        console.log('duplicate shortUrl!')
+        if (!duplicateUrl) {
+          console.log('shortUrl is created')
+          break
+        }
       }
 
       const url = new Url({
         originalUrl: req.body.originalUrl,
         shortUrl: shortUrl
       })
-      const completeShortUrl = `${host}/${shortUrl}`
-      url.save(err => {
-        if (err) return console.error(err)
-        return res.render('index', { shortUrl: completeShortUrl })
-      })
+
+      const isHttpRegex = originalUrl.match(httpRegex)
+      const isHttpsRegex = originalUrl.match(httpsRegex)
+
+      if (isHttpRegex) {
+        const completeShortUrl = `http://${host}/${shortUrl}`
+        url.save(err => {
+          if (err) return console.error(err)
+          return res.render('index', { shortUrl: completeShortUrl })
+        })
+      }
+      if (isHttpsRegex) {
+        const completeShortUrl = `https://${host}/${shortUrl}`
+        url.save(err => {
+          if (err) return console.error(err)
+          return res.render('index', { shortUrl: completeShortUrl })
+        })
+      }
     }
   })
 })
 
 app.get('/:shortUrl_id', (req, res) => {
-  console.log(req.params)
   Url.findOne({ shortUrl: req.params.shortUrl_id }).then(url => {
     if (url) {
-      res.redirect(`http://${url.originalUrl}`)
+      res.redirect(`${url.originalUrl}`)
     } else {
       res.redirect('/')
     }
