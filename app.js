@@ -52,7 +52,7 @@ app.post('/shortUrl', (req, res) => {
     if (url) {
       console.log('Url already shortened')
       const shortUrl = url.shortUrl
-      const completeShortUrl = `https://${host}/${shortUrl}`
+      const completeShortUrl = `https://${host}/${shortUrl}`  // if use localhost, should change it to `http://${host}/${shortUrl}`
       res.render('index', { shortUrl: completeShortUrl })
     } else {
       // avoid duplicate short url
