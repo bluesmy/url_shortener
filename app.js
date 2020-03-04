@@ -24,12 +24,10 @@ db.once('open', () => {
 
 const Url = require('./models/url')
 
-//Url Shortener 首頁
 app.get('/', (req, res) => {
   res.render('index')
 })
 
-// 新增一筆 short url
 app.post('/shortUrl', (req, res) => {
   const originalUrl = req.body.originalUrl
   const host = req.headers.host
@@ -41,7 +39,12 @@ app.post('/shortUrl', (req, res) => {
       const completeShortUrl = `${host}/${shortUrl}`
       res.render('index', { shortUrl: completeShortUrl })
     } else {
-      const shortUrl = generate('1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ', 5)
+      while (true) {
+        let shortUrl = ''
+        shortUrl = generate('1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ', 5)
+        const duplicateUrl = Url.findOne({ shortUrl: shortUrl })
+        if (!duplicateUrl) break
+      }
 
       const url = new Url({
         originalUrl: req.body.originalUrl,
@@ -56,7 +59,6 @@ app.post('/shortUrl', (req, res) => {
   })
 })
 
-// 導向 short url網址
 app.get('/:shortUrl_id', (req, res) => {
   console.log(req.params)
   Url.findOne({ shortUrl: req.params.shortUrl_id }).then(url => {
