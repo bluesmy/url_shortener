@@ -38,15 +38,16 @@ app.post('/shortUrl', (req, res) => {
     if (url) {
       console.log('Url already shortened')
       const shortUrl = url.shortUrl
-      const completeShortUrl = `https://${host}/${shortUrl}`
+      const completeShortUrl = `${host}/${shortUrl}`
       res.render('index', { shortUrl: completeShortUrl })
     } else {
       const shortUrl = generate('1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ', 5)
+
       const url = new Url({
         originalUrl: req.body.originalUrl,
-        shortUrl: host + '/' + shortUrl
+        shortUrl: shortUrl
       })
-      const completeShortUrl = `https://${host}/${shortUrl}`
+      const completeShortUrl = `${host}/${shortUrl}`
       url.save(err => {
         if (err) return console.error(err)
         return res.render('index', { shortUrl: completeShortUrl })
@@ -57,7 +58,14 @@ app.post('/shortUrl', (req, res) => {
 
 // 導向 short url網址
 app.get('/:shortUrl_id', (req, res) => {
-  res.send('導向short url網址')
+  console.log(req.params)
+  Url.findOne({ shortUrl: req.params.shortUrl_id }).then(url => {
+    if (url) {
+      res.redirect(`http://${url.originalUrl}`)
+    } else {
+      res.redirect('/')
+    }
+  }).catch(err => console.log(err))
 })
 
 app.listen(3000, () => {
