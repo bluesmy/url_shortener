@@ -1,6 +1,10 @@
 const express = require('express')
 const app = express()
 const mongoose = require('mongoose')
+const exphbs = require('express-handlebars')
+
+app.engine('handlebars', exphbs({ defaultLayout: 'main' }))
+app.set('view engine', 'handlebars')
 
 mongoose.connect('mongodb://localhost/url', { useNewUrlParser: true, useUnifiedTopology: true })
 
@@ -18,7 +22,7 @@ const Url = require('./models/url')
 
 //Url Shortener 首頁
 app.get('/', (req, res) => {
-  res.send('hello world')
+  res.render('index')
 })
 
 // 新增一筆 short url
