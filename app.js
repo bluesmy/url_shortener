@@ -12,7 +12,7 @@ app.set('view engine', 'handlebars')
 
 app.use(express.static('public'))
 
-mongoose.connect('mongodb://localhost/url', { useNewUrlParser: true, useUnifiedTopology: true })
+mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost/url', { useNewUrlParser: true, useUnifiedTopology: true })
 
 const db = mongoose.connection
 
@@ -103,6 +103,6 @@ app.get('/:shortUrl_id', (req, res) => {
   }).catch(err => console.log(err))
 })
 
-app.listen(3000, () => {
+app.listen(process.env.PORT || 3000, () => {
   console.log('App is running!')
 })
